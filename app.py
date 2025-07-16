@@ -7,192 +7,135 @@ from src.matcher import JobMatcher
 from src.pdf_processor import PDFProcessor
 from firecrawl import FirecrawlApp
 
-# --- Page Config ---
-st.set_page_config(page_title="jobsearch", page_icon="🔍", layout="wide")
+# Load environment variables
 load_dotenv()
 
-# --- CSS for Jobsearch Design ---
+# Set page configuration and theme
+st.set_page_config(
+    page_title="jobsearch AI",
+    page_icon="🔥",
+    layout="wide",
+)
+
+# --- Custom CSS for jobsearch design system ---
 st.markdown("""
 <style>
 body {
-    background: #f3f2ef;
+    background: #F3F5F7 !important;
 }
-
-.jobsearch-navbar {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0.7rem 0 0.5rem 0;
+.stApp {
+    background: #F3F5F7;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    color: #222 !important;
+}
+h1, h2, h3, h4 {
+    color: #181A1B !important;
+    font-weight: 700 !important;
+}
+.sidebar .sidebar-content {
     background: #fff;
-    border-bottom: 1px solid #e6e6e6;
-    margin-bottom: 1.5rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
 }
-.jobsearch-navbar .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #666;
-    text-decoration: none;
-    font-size: 0.92rem;
-    font-weight: 500;
-    transition: color 0.2s;
+.stButton > button {
+    background: #224DFF !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+    box-shadow: 0 1px 4px rgba(30, 34, 40, 0.05);
 }
-.jobsearch-navbar .nav-item.selected {
-    color: #222;
+.stButton > button:disabled {
+    background: #B0B5BB !important;
+    color: #fff !important;
+}
+.stTextInput > div > div > input, .stTextArea textarea {
+    background: #fff !important;
+    border-radius: 8px !important;
+    border: 1px solid #DCE0E5 !important;
+    color: #222 !important;
+    font-size: 16px !important;
+}
+.stTextInput > label, .stTextArea > label {
+    color: #224DFF !important;
+    font-weight: 600;
+}
+.card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 8px rgba(50,60,80,0.07);
+    padding: 1.6rem 2rem;
+    margin-bottom: 2rem;
+    border: none;
+}
+.card h3 {
+    color: #224DFF !important;
+    margin-bottom: 0.7rem;
+}
+.card .match-status {
     font-weight: 700;
 }
-.jobsearch-navbar .nav-item.selected .nav-underline {
-    width: 32px;
-    height: 3px;
-    background: #222;
-    border-radius: 2px;
-    margin-top: 4px;
-    display: block;
+.card .good-match {
+    color: #28a745 !important;
 }
-.jobsearch-navbar .nav-item:not(.selected):hover {
-    color: #222;
+.card .poor-match {
+    color: #dc3545 !important;
 }
-.jobsearch-search {
-    width: 100%;
-    max-width: 340px;
-    margin: 1.7rem auto 1rem auto;
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border: 2px solid #d1d1d1;
-    border-radius: 2rem;
-    box-shadow: 0 2px 8px rgba(40,40,40,0.02);
-    padding: 0.22rem 1.1rem;
-    font-size: 1.17rem;
-    gap: 0.5rem;
-}
-.jobsearch-search input {
-    border: none;
-    outline: none;
-    font-size: 1.13rem;
-    width: 100%;
-    padding: 0.7rem 0;
-    background: transparent;
-    color: #444;
-}
-.jobsearch-search .search-icon {
-    color: #767676;
-    font-size: 1.5rem;
-    margin-right: 0.2rem;
-}
-.jobsearch-sidebar {
-    background: #fff;
-    border-radius: 1rem;
-    padding: 1.3rem 1rem;
-    box-shadow: 0 2px 8px rgba(60,60,60,0.07);
-}
-.jobsearch-card {
-    background: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 2px 12px rgba(40,40,40,0.08);
-    padding: 2rem 2.2rem 1.7rem 2.2rem;
-    margin-bottom: 2rem;
-    border: 1px solid #ececec;
+.card .job-url {
+    font-size: 0.93rem;
+    word-break: break-all;
 }
 .match-score-bar {
     height: 8px;
-    background-color: #e9ecef;
+    background: #EDF1FF;
     border-radius: 4px;
-    margin-top: 5px;
+    margin-top: 6px;
+    margin-bottom: 18px;
     overflow: hidden;
 }
 .match-score-fill {
     height: 100%;
     border-radius: 4px;
-    transition: width 0.5s;
+    transition: width 0.5s ease;
 }
-.match-score-low {
-    background-color: #dc3545;
-}
-.match-score-medium {
-    background-color: #ffc107;
-}
-.match-score-high {
-    background-color: #28a745;
-}
-.stButton>button {
-    border-radius: 2rem !important;
-    padding: 0.55rem 2.1rem !important;
-    font-weight: 600;
-    background: #004182 !important;
-    color: #fff !important;
-    border: none !important;
-    transition: background 0.2s;
-}
-.stButton>button:hover {
-    background: #014a96 !important;
-}
-.stTextInput>div>input, .stTextArea>div>textarea {
-    border-radius: 1.5rem !important;
-    border: 1.5px solid #dadada !important;
-    padding: 0.7rem 1.2rem !important;
-}
-.stSidebar [data-testid="stSidebarContent"] {
-    padding-top: 1.5rem !important;
-}
-.stExpander, .st-expander {
-    border-radius: 1.1rem !important;
-    background: #f9f9f9 !important;
+.match-score-low { background: #dc3545; }
+.match-score-medium { background: #f5a623; }
+.match-score-high { background: #28a745; }
+.st-expander {
+    background: #F3F5F7 !important;
+    border-radius: 10px !important;
+    margin-top: 10px !important;
 }
 .success-message {
-    color: #28a745; background-color: #e8f5e9;
-    padding: 8px; border-radius: 4px; font-size: 14px;
+    color: #28a745; 
+    background: #eafbe7; 
+    padding: 8px; 
+    border-radius: 5px; 
+    font-size: 15px;
+    margin-bottom: 10px;
 }
 .error-message {
-    color: #721c24; background-color: #f8d7da;
-    padding: 10px; border-radius: 4px; font-size: 14px; border: 1px solid #f5c6cb;
+    color: #c82333;
+    background: #f8d7da;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 15px;
+    margin-bottom: 10px;
 }
 .info-box {
-    background: #f2fafc;
-    border-left: 3px solid #0066cc;
+    background: #EDF1FF;
     border-radius: 10px;
-    padding: 1rem 2rem;
-    margin-bottom: 1.8rem;
+    padding: 1.4rem 1.8rem;
+    margin-bottom: 1.7rem;
+    border-left: 5px solid #224DFF;
+}
+.source-item {
+    background: #EAF0FB;
+    border-radius: 6px;
+    padding: 0.3rem 0.9rem;
+    margin-bottom: 0.4rem;
+    border-left: 3px solid #224DFF;
+    color: #222;
+    font-size: 1rem;
 }
 </style>
-""", unsafe_allow_html=True)
-
-# --- Custom SVG Icons ---
-def svg_icon(icon):
-    if icon == "home":
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="25" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 22"><path d="M3 9.9 12 3l9 6.9"/><path d="M4 10v8.1c0 .5.4.9.9.9h4.6c.5 0 .9-.4.9-.9V14c0-.5.4-.9.9-.9h1.4c.5 0 .9.4.9.9v4.9c0 .5.4.9.9.9h4.6c.5 0 .9-.4.9-.9V10"/></svg>'
-    if icon == "network":
-        return '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><circle cx="17" cy="17" r="4"/><path d="M15.59 15.59 12 12m0 0V8m0 4 3.59 3.59"/></svg>'
-    if icon == "jobs":
-        return '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg>'
-    if icon == "chat":
-        return '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15.5A2.5 2.5 0 0 1 18.5 18h-13A2.5 2.5 0 0 1 3 15.5V7A2.5 2.5 0 0 1 5.5 4.5h13A2.5 2.5 0 0 1 21 7v8.5Z"/><path d="m8 11 4 4 4-4"/></svg>'
-    if icon == "bell":
-        return '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'
-    if icon == "search":
-        return '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8"/><path d="m19 19-4-4"/></svg>'
-    return ""
-
-# --- Jobsearch Navigation Bar ---
-st.markdown(f"""
-<div class="jobsearch-navbar">
-    <div class="nav-item selected">{svg_icon("home")}<span>Home</span><span class="nav-underline"></span></div>
-    <div class="nav-item">{svg_icon("network")}<span>My Network</span></div>
-    <div class="nav-item">{svg_icon("jobs")}<span>Jobs</span></div>
-    <div class="nav-item">{svg_icon("chat")}<span>Messaging</span></div>
-    <div class="nav-item">{svg_icon("bell")}<span>Notifications</span></div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- Jobsearch Search Bar ---
-st.markdown(f"""
-<div class="jobsearch-search">
-    <span class="search-icon">{svg_icon("search")}</span>
-    <input placeholder="Search" disabled />
-</div>
 """, unsafe_allow_html=True)
 
 # ---------- Functions ----------
@@ -218,12 +161,11 @@ async def process_job(scraper, matcher, job, resume_content):
     return job, result
 
 async def main():
-    st.title("jobsearch")
+    st.title("jobsearch: AI Job Matcher")
     jobs = []
 
-    # --- Sidebar (jobsearch style) ---
+    # Sidebar
     with st.sidebar:
-        st.markdown('<div class="jobsearch-sidebar">', unsafe_allow_html=True)
         st.markdown("<h3>Configuration</h3>", unsafe_allow_html=True)
         firecrawl_api_key = st.text_input(
             "Firecrawl API Key",
@@ -262,7 +204,7 @@ async def main():
                     st.warning("This URL is already in your list.")
         st.markdown("<h4>Current Job URLs</h4>", unsafe_allow_html=True)
         if not st.session_state.job_urls:
-            st.markdown('<p style="font-style: italic; font-size: 0.9rem;">No job URLs added yet. Add a job URL above.</p>', unsafe_allow_html=True)
+            st.markdown('<p style="font-style: italic; font-size: 0.95rem;">No job URLs added yet. Add a job URL above.</p>', unsafe_allow_html=True)
         for i, url in enumerate(st.session_state.job_urls):
             col1, col2 = st.columns([3, 1])
             with col1:
@@ -316,19 +258,17 @@ async def main():
             use_container_width=True,
             disabled=(not resume_url and resume_file is None and not resume_text)
         )
-        st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- Main content area (jobsearch card style) ---
+    # Main content
     st.markdown("""
     <div class="info-box">
         <h3 style="margin-top: 0;">How It Works</h3>
-        <p>This app helps you find matching jobs by:</p>
         <ul>
-            <li>Analyzing your resume from a PDF file or URL</li>
-            <li>Scraping job postings from your saved job sources</li>
-            <li>Using AI to evaluate if you're a good fit for each position</li>
+            <li>Analyze your resume (PDF or pasted text)</li>
+            <li>Scrape jobs from your selected job URLs</li>
+            <li>AI scores your fit for each job with feedback</li>
         </ul>
-        <p>Simply upload your resume PDF in the sidebar to get started!</p>
+        <p style="margin-top: 1.1em;">Upload or paste your resume on the left to begin.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -388,6 +328,53 @@ async def main():
                     for job, result in job_results:
                         with st.container():
                             st.markdown(f"""
-                            <div class="jobsearch-card">
-                                <h3 style="margin-top: 0;">{job.title}</h3>
-                                <p><strong>URL:</strong>
+                            <div class="card">
+                                <h3>{job.title}</h3>
+                                <div class="job-url"><strong>URL:</strong> <a href="{job.url}" target="_blank">{job.url}</a></div>
+                                <p><strong>Match:</strong> <span class="match-status {'good-match' if result["is_match"] else 'poor-match'}">
+                                    {"✅ Good Match" if result["is_match"] else "❌ Not a Match"}</span></p>
+                                <p><strong>Reason:</strong> {result["reason"]}</p>
+                                <p><strong>Match Score:</strong> <span style="font-weight: 600;">{result["match_score"]}%</span></p>
+                                <div class="match-score-bar">
+                                    <div class="match-score-fill {'match-score-low' if int(result["match_score"]) < 50 else 'match-score-medium' if int(result["match_score"]) < 75 else 'match-score-high'}"
+                                        style="width: {result["match_score"]}%;"></div>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            with st.expander("Details", expanded=False):
+                                st.markdown("**Key Strengths:**")
+                                strengths = result["key_strengths"]
+                                if any(strength != "N/A" for strength in strengths):
+                                    for strength in strengths:
+                                        if strength != "N/A":
+                                            st.markdown(f"- {strength}")
+                                else:
+                                    st.markdown("_No specific strengths identified_")
+                                st.markdown("**Areas for Improvement:**")
+                                missing_skills = result["missing_skills"]
+                                if any(skill != "N/A" for skill in missing_skills):
+                                    for skill in missing_skills:
+                                        if skill != "N/A":
+                                            st.markdown(f"- {skill}")
+                                else:
+                                    st.markdown("_No specific areas identified_")
+                                st.markdown("**Suggestions:**")
+                                suggestions = result.get("improvement_suggestions", ["N/A"])
+                                if any(suggestion != "N/A" for suggestion in suggestions):
+                                    for suggestion in suggestions:
+                                        if suggestion != "N/A":
+                                            st.markdown(f"- {suggestion}")
+                                else:
+                                    st.markdown("_No specific suggestions available_")
+        except Exception as e:
+            if "API key" in str(e) or "authentication" in str(e).lower() or "unauthorized" in str(e).lower():
+                st.markdown('<div class="error-message">❌ Invalid API key. Please check your Firecrawl API key in the sidebar and try again.</div>', unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div class="error-message">❌ An error occurred: {str(e)}</div>', unsafe_allow_html=True)
+        if 'jobs' in locals():
+            st.success(f"Analysis complete! Processed {len(jobs)} jobs.")
+        else:
+            st.success("Analysis complete!")
+
+if __name__ == "__main__":
+    asyncio.run(main())
