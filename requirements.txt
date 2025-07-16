@@ -117,3 +117,5 @@ yarl==1.18.3
 zstandard==0.23.0
 PyPDF2==3.0.1
 pdfplumber==0.10.4
+langchain-openai
+
