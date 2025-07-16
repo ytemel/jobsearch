@@ -1,0 +1,98 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.yarn/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.pyre/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Pyre type checker
+.pyre/
+
+# Environments
+.env
+.env.*
+.venv
+.venv.*
+
+# VSCode
+.vscode/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Streamlit specific
+.streamlit/secrets.toml
+
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# Backup files
+*~
+
+# Node modules (if using js)
+node_modules/
+
+# SQLite DB
+*.sqlite3
+*.db
+
+# GitHub workflow logs
+.github/
+
+# Ignore test results
+*.pytest_cache/
+
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+
+# System files
+Thumbs.db
+
+# PDF extraction cache
+pdfminer_cache/
+
+# Temporary files
+tmp/
+temp/
